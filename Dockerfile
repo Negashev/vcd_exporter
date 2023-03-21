@@ -1,12 +1,13 @@
-FROM python:3.6-alpine
+FROM python:3.9-alpine
 
 LABEL MAINTAINER="Tyler French <tylerfrench2@gmail.com>"
+LABEL MAINTAINER="Negash <i@negash.ru>"
 LABEL NAME=vcd_exporter
 
 WORKDIR /opt/vcd_exporter/
 COPY . /opt/vcd_exporter/
 
-RUN set -x; buildDeps="gcc python-dev musl-dev libffi-dev openssl openssl-dev" \
+RUN set -x; buildDeps="gcc python3-dev musl-dev libffi-dev openssl openssl-dev" \
  && apk add --no-cache --update $buildDeps libxml2-dev libxslt-dev \
  && pip install -r requirements.txt . \
  && apk del $buildDeps

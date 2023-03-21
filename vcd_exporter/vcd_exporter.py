@@ -77,6 +77,7 @@ class VcdApplicationResource(Resource):
             """
             self.config = {
                 'default': {
+                    'vcd_host': os.environ.get('VCD_HOST'),
                     'vcd_user': os.environ.get('VCD_USER'),
                     'vcd_org': os.environ.get('VCD_ORG'),
                     'vcd_password': os.environ.get('VCD_PASSWORD'),
@@ -424,12 +425,12 @@ class VcdCollector:
                                             str(org.get_name()),
                                             str(vdc.resource.IsEnabled)
                                         ]
-                                        vm_spec = vm.VmSpecSection
                                         metrics['vcd_vdc_vapp_vm_status'].add_metric(vm_labels,
                                                                                      vm.attrib['status'])
-
-                                        metrics['vcd_vdc_vapp_vm_vcpu'].add_metric(vm_labels, vm_spec.NumCpus)
-                                        metrics['vcd_vdc_vapp_vm_allocated_memory_mb'].add_metric(
+                                        if hasattr(vm, 'VmSpecSection'):
+                                            vm_spec = vm.VmSpecSection
+                                            metrics['vcd_vdc_vapp_vm_vcpu'].add_metric(vm_labels, vm_spec.NumCpus)
+                                            metrics['vcd_vdc_vapp_vm_allocated_memory_mb'].add_metric(
                                             vm_labels,
                                             vm_spec.MemoryResourceMb.Configured)
                                 except Exception as err:
@@ -515,7 +516,7 @@ class VcdConnection:
         try:
             self.vcd_client = Client(
                 vcd_host,
-                api_version='31.0',
+                api_version='33.0',
                 verify_ssl_certs=ignore_ssl
             )
             self.vcd_client.set_credentials(BasicLoginCredentials(vcd_user, vcd_org, vcd_password))
